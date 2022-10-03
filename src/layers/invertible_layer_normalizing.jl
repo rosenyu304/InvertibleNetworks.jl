@@ -1,33 +1,36 @@
 # Normalizing layer using sigmoid function
 
 
-export Normalizing, reset!
+
+export Normalizing
 
 
 struct NormalizingLayer <: NeuralNetLayer
-    ε::Parameter
-    max::Parameter
-    min::Parameter
+    ε::Float32
+    _max::Float32
+    _min::Float32
     logdet::Bool
 end
 
 @Flux.functor NormalizingLayer
 
 # Constructor: Initialize with nothing
-function NormalizingLayer(nx::Int64, ny::Int64, nc::Int64; logdet=false)
+NormalizingLayer(; ε=1f-6, _max=1f0 , _min=0f0, logdet=false) = NormalizingLayer(ε, _max, _min, logdet)
 
-
-end
 
 # Foward pass: Input X, Output Y
 function forward(X::AbstractArray{T, N}, NL::NormalizingLayer) where {T, N}
 
+#     X = min.(max.(X, NL._min + NL.ε), NL._max - NL.ε)
+    Y = SigmoidInv.(X)
     
 end
 
 # Inverse pass: Input Y, Output X
 function inverse(Y::AbstractArray{T, N}, NL::NormalizingLayer; eps::T=T(0)) where {T, N}
     
+    X = Sigmoid.(Y)
+
 end
 
 # Backward pass: Input (ΔY, Y), Output (ΔY, Y)
